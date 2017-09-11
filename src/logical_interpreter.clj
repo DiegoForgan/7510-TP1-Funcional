@@ -204,6 +204,14 @@
   (and bool1 bool2)  
 )
 
+(defn buscar-hecho 
+	"Busca un HECHO en la base de datos y devuelve TRUE en caso de que exista,
+	sino devuelve FALSE."
+	[bdd consulta]
+  	(let [hechosVectorizados (into #{} bdd)]
+    (contains? hechosVectorizados consulta)) 
+)
+
 (defn resolver-regla 
 	"Resuelve la regla que ingresa al sistema y devuelve TRUE en caso de que se cumpla,
 	sino devuelve FALSE."
@@ -221,13 +229,7 @@
 )
 
 
-(defn buscar-hecho 
-	"Busca un HECHO en la base de datos y devuelve TRUE en caso de que exista,
-	sino devuelve FALSE."
-	[bdd consulta]
-  	(let [hechosVectorizados (into #{} bdd)]
-    (contains? hechosVectorizados consulta)) 
-)
+
 
 
 (defn evaluate-query
