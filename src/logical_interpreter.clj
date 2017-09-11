@@ -120,8 +120,8 @@
 	"Devuelve TRUE si la consulta es referida a un HECHO, sino devuelve FALSE."
 	[listaDeHechos consulta]
   	(let [nombre (obtener-nombres consulta)
-        hechosVectorizados (into #{} listaDeHechos)]
-   	(contains? hechosVectorizados nombre)
+        hechosSET (into #{} listaDeHechos)]
+   	(contains? hechosSET nombre)
   )
 )
 
@@ -130,17 +130,94 @@
 	"Devuelve TRUE si la consulta es referida a un REGLA, sino devuelve FALSE."
 	[listaDeReglas consulta]
   	(let [nombre (obtener-nombres consulta)
-        reglasVectorizadas (into #{} listaDeReglas)]
-   	(contains? reglasVectorizadas nombre)
+        reglasSET (into #{} listaDeReglas)]
+   	(contains? reglasSET nombre)
   )
 )
 
+(defn matchea-regla? 
+	"Devuelve la definicion de la regla a analizar."
+	[linea nombre]
+	(if (str/includes? linea nombre) linea "")
+)
+
+
+(defn obtener-definicion-de-regla 
+	"Obtiene la regla completa que se quiere estudiar."
+	[bdd nombre]
+	(let [reglas (filter es-regla? bdd)
+		reglaSeleccionada (remove str/blank? (map #(matchea-regla? % nombre) reglas))]
+    reglaSeleccionada
+	)
+)
+
+(defn quitar-comas 
+	"Quita la coma dentro de una cadena de caracteres."
+	[elemento]
+  	(str/replace elemento #"," "")  
+)
+
+(defn reemplazar-variables-por-valores
+	"Devuelve una lista con los hechos donde las variables se ven reemplazadas por los valores correpondientes."
+	[hecho variables valores]
+	(let [variablesVectorizadas (into [] variables)
+		valoresVectorizados (into [] valores)
+		variablesdelhecho (into [] (map str/trim (map quitar-comas (rest (re-find #"\((.*?)\)" hecho)))))]
+		
+	)
+	"varon(juan)"
+)
+
+(defn agregarParentesisFinal 
+	"Agrega el parentesis que se quito en el proceso anterior cuando se hace el split."
+  	[linea]
+  	(if (str/ends-with? linea ")") linea (do (str linea ")")))  
+)
+
+(defn obtener-hechos-de-regla [regla]
+  "Devuelve una lista con los hechos que componen la regla que se quiere resolver."
+  (let [hechos (map str/trim (map agregarParentesisFinal (str/split (first (rest (str/split (first regla)  #":-"))) #"\),")))]
+    hechos
+  )
+    
+)
+
+(defn obtener-variables 
+  "Devuelve una lista de las variables que componen la regla a resolver."
+  [regla]
+  (let [variables (map str/trim (str/split (str/replace (str/replace (first (str/split (first regla)  #":-")) #".*\(" "" ) #"\)" "") #","))]
+       variables
+  )
+)
+
+(defn obtener-valores
+  "Devuelve una lista con los valores ingresados en la consulta."
+  [consulta]
+  (let [valores (map str/trim (str/split (str/replace (str/replace consulta #".*\(" "" ) #"\)" "") #","))]
+    valores     
+  )
+)
+
+(defn mi-funcion-and 
+  "Funcion AND implementada porque no se podia hacer reduce con la funcion AND"
+  [bool1 bool2]
+  (and bool1 bool2)  
+)
 
 (defn resolver-regla 
 	"Resuelve la regla que ingresa al sistema y devuelve TRUE en caso de que se cumpla,
 	sino devuelve FALSE."
 	[bdd consulta]
-  	true
+	(let [nombreDeRegla (obtener-nombres consulta)
+		reglaAestudiar (obtener-definicion-de-regla bdd nombreDeRegla)
+		variables (obtener-variables reglaAestudiar)
+		valores (obtener-valores consulta)
+		hechosQueComponenLaRegla (obtener-hechos-de-regla reglaAestudiar)
+		hechosConValores (map #(reemplazar-variables-por-valores % variables valores) hechosQueComponenLaRegla)
+		resultadosDeCadaHecho (map #(buscar-hecho bdd %) hechosConValores)
+		resultadoFinal (reduce mi-funcion-and true resultadosDeCadaHecho)]
+  	resultadoFinal
+  )
 )
 
 
