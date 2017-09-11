@@ -116,13 +116,22 @@
 )
 
 
-(defn averiguar-tipo-consulta 
+(defn consulta-es-hecho? 
 	"Devuelve TRUE si la consulta es referida a un HECHO, sino devuelve FALSE."
-	[listaDeHechos listaDeReglas consulta]
+	[listaDeHechos consulta]
   	(let [nombre (obtener-nombres consulta)
-        hechosVectorizados (into #{} listaDeHechos)
-        reglasVectorizadas (into #{} listaDeReglas)]
+        hechosVectorizados (into #{} listaDeHechos)]
    	(contains? hechosVectorizados nombre)
+  )
+)
+
+
+(defn consulta-es-regla? 
+	"Devuelve TRUE si la consulta es referida a un REGLA, sino devuelve FALSE."
+	[listaDeReglas consulta]
+  	(let [nombre (obtener-nombres consulta)
+        reglasVectorizadas (into #{} listaDeReglas)]
+   	(contains? reglasVectorizadas nombre)
   )
 )
 
@@ -151,13 +160,24 @@
 
   (let [baseDeDatosOK (evaluar-base-de-datos database)
         consultaOK (consulta-valida? query)
-  		  baseProcesada (procesar-base-de-datos database)
-  		  listaDeHechos (obtener-lista-hechos baseProcesada)
-  		  listaDeReglas (obtener-reglas baseProcesada)
-  		  consultaEsHecho (averiguar-tipo-consulta listaDeHechos listaDeReglas query)]
+  		baseProcesada (procesar-base-de-datos database)
+  		listaDeHechos (obtener-lista-hechos baseProcesada)
+  		listaDeReglas (obtener-reglas baseProcesada)
+  		consultaEsHecho (consulta-es-hecho? listaDeHechos query)
+  		consultaEsRegla (consulta-es-regla? listaDeReglas query)]
+      	
       	(if (and baseDeDatosOK consultaOK)
   			(do 
-  				(if consultaEsHecho (buscar-hecho baseProcesada query) (resolver-regla baseProcesada query))
+  				(if consultaEsHecho 
+  					(buscar-hecho baseProcesada query) 
+  					(do 
+  						(if consultaEsRegla 
+  							(resolver-regla baseProcesada query)
+  							false
+  						)
+
+  					)
+  				)	
   			)
   			nil
   		)
