@@ -135,6 +135,7 @@
   )
 )
 
+
 (defn matchea-regla? 
 	"Devuelve la definicion de la regla a analizar."
 	[linea nombre]
@@ -174,13 +175,15 @@
   	(if (str/ends-with? linea ")") linea (do (str linea ")")))  
 )
 
+
 (defn obtener-hechos-de-regla [regla]
   "Devuelve una lista con los hechos que componen la regla que se quiere resolver."
   (let [hechos (map str/trim (map agregarParentesisFinal (str/split (first (rest (str/split (first regla)  #":-"))) #"\),")))]
-    hechos
+    	hechos
   )
     
 )
+
 
 (defn obtener-variables 
   "Devuelve una lista de las variables que componen la regla a resolver."
@@ -190,6 +193,7 @@
   )
 )
 
+
 (defn obtener-valores
   "Devuelve una lista con los valores ingresados en la consulta."
   [consulta]
@@ -198,11 +202,13 @@
   )
 )
 
+
 (defn mi-funcion-and 
   "Funcion AND implementada porque no se podia hacer reduce con la funcion AND"
   [bool1 bool2]
   (and bool1 bool2)  
 )
+
 
 (defn buscar-hecho 
 	"Busca un HECHO en la base de datos y devuelve TRUE en caso de que exista,
@@ -211,6 +217,7 @@
   	(let [hechosVectorizados (into #{} bdd)]
     (contains? hechosVectorizados consulta)) 
 )
+
 
 (defn resolver-regla 
 	"Resuelve la regla que ingresa al sistema y devuelve TRUE en caso de que se cumpla,
@@ -227,9 +234,6 @@
   	resultadoFinal
   )
 )
-
-
-
 
 
 (defn evaluate-query
@@ -254,7 +258,6 @@
   							(resolver-regla baseProcesada query)
   							false
   						)
-
   					)
   				)	
   			)
