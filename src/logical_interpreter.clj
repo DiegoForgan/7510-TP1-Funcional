@@ -152,22 +152,25 @@
 	)
 )
 
+
 (defn quitar-comas 
 	"Quita la coma dentro de una cadena de caracteres."
 	[elemento]
   	(str/replace elemento #"," "")  
 )
 
+
 (defn reemplazar-variables-por-valores
 	"Devuelve una lista con los hechos donde las variables se ven reemplazadas por los valores correpondientes."
 	[hecho variables valores]
-	(let [variablesVectorizadas (into [] variables)
-		valoresVectorizados (into [] valores)
-		variablesdelhecho (into [] (map str/trim (map quitar-comas (rest (re-find #"\((.*?)\)" hecho)))))]
-		
+	(if (and (> (count variables) 0) (> (count valores) 0)) 
+		(do (let [hechoConvertido (str/replace hecho (first variables) (first valores))]
+				(reemplazar-variables-por-valores hechoConvertido (rest variables) (rest valores))) 
+		)
+	  	hecho
 	)
-	"varon(juan)"
 )
+
 
 (defn agregarParentesisFinal 
 	"Agrega el parentesis que se quito en el proceso anterior cuando se hace el split."
